@@ -3,10 +3,13 @@ import axios from "axios";
 import humps from "humps";
 import { API_ENDPOINT, objectExists, formatDateTime } from "../utils";
 import AddTripModal from "./AddTripModal";
+import ReadTripModal from "./ReadTripModal";
 
 export default function Trips({ currentUser }) {
+  const [trip, setTrip] = useState({});
   const [trips, setTrips] = useState([]);
   const [addTripModal, setAddTripModal] = useState(false);
+  const [readTripModal, setReadTripModal] = useState(false);
   const tableHeaders = [
     "Assignee",
     "Owner",
@@ -38,15 +41,24 @@ export default function Trips({ currentUser }) {
     }
   };
 
-  const handleAction = async (id) => {
+  const handleAction = (trip) => {
+    if (trip.status == "Complete") {
+      setTrip(trip);
+      setReadTripModal(true);
+    } else {
+      updateTripStatus(trip.id);
+      handleGetTrips();
+    }
+  };
+
+  const updateTripStatus = async (id) => {
     const url = `${API_ENDPOINT}/users/${currentUser.id}/trips/${id}`;
     const resp = await axios.put(url);
     const updatedTrip = resp.data.trip;
-
     setTrips(
       trips.map((trip) => {
         if (trip.id === updatedTrip.id) {
-          return { updatedTrip };
+          return updatedTrip;
         } else {
           return trip;
         }
@@ -69,6 +81,11 @@ export default function Trips({ currentUser }) {
         trips={trips}
         setTrips={setTrips}
       />
+      <ReadTripModal
+        open={readTripModal}
+        trip={trip}
+        setReadTripModal={setReadTripModal}
+      />
       <button id="addTrip" onClick={() => setAddTripModal(true)}>
         + Add Trip
       </button>
@@ -89,7 +106,7 @@ export default function Trips({ currentUser }) {
             <p>{trip.status}</p>
             <div
               className={`actionButton ${humps.camelize(trip.status)}`}
-              onClick={() => handleAction(trip.id)}
+              onClick={() => handleAction(trip)}
             >
               {actionButtonText(trip.status)}
             </div>

@@ -32,7 +32,6 @@ export default function AddTripModal({
   }, []);
 
   const handleChange = (event) => {
-    console.log(addTripForm);
     const value = event.target.value;
     setAddTripForm({
       ...addTripForm,

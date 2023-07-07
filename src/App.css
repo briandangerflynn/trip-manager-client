@@ -97,6 +97,23 @@ header {
   display: none;
 }
 
+#readTripModalBody label {
+  font-size: 12px;
+  font-weight: bold;
+}
+
+#readTripModalBody div {
+  display: flex;
+  width: 100%;
+  justify-content: flex-start;
+  text-align: left;
+}
+
+#readTripModalBody div label,
+#readTripModalBody div p {
+  width: 50%;
+}
+
 #addTrip {
   display: block;
   border-radius: 5px;
