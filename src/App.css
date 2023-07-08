@@ -23,8 +23,8 @@ header {
   font-weight: bold;
 }
 
-.tripTableHeaders p {
-  width: 5%;
+.tripTableHeaders div:last-of-type {
+  text-align: right;
 }
 
 #trips {
@@ -129,34 +129,51 @@ header {
   justify-content: space-around;
   background-color: whitesmoke;
   border-radius: 5px;
+  padding: 0 10px;
 }
 
-.tripRow p {
+.tripRow .col {
   width: 15%;
 }
 
+.col.actionButtons {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.tripStatus {
+  padding: 10px;
+  width: 80px;
+  border-radius: 5px;
+  color: white;
+}
+
+
+.tripRow .tripStatus.notStarted {
+  background: #CFE0FD;
+}
+
+.tripRow .tripStatus.inProgress {
+  background: #FFA525
+}
+
+.tripRow .tripStatus.overdue {
+  background: #FF5252
+}
+
+.tripRow .tripStatus.complete {
+  background: #4CAF4F
+}
+
 .tripRow .actionButton {
+  margin: 0 5px;
   padding: 10px;
   width: 60px;
   border-radius: 5px;
+  background-color: blue;
+  color: white;
 }
 
 .tripRow .actionButton:hover {
   cursor: pointer;
-}
-
-.tripRow .actionButton.notStarted {
-  background: #CFE0FD;
-}
-
-.tripRow .actionButton.inProgress {
-  background: #FFA525
-}
-
-.tripRow .actionButton.overdue {
-  background: #FF5252
-}
-
-.tripRow .actionButton.complete {
-  background: #4CAF4F
 }

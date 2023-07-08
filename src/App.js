@@ -5,6 +5,8 @@ import { getSession, objectExists } from "./utils";
 import Header from "./components/Header";
 import Login from "./components/Login";
 import Trips from "./components/Trips";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   const [currentUser, setCurrentUser] = useState({});
@@ -28,6 +30,18 @@ function App() {
 
   return (
     <div className="App">
+      <ToastContainer
+        position="top-center"
+        autoClose={2000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
       <Header currentUser={currentUser} setCurrentUser={setCurrentUser} />
       <Routes>
         <Route path="/" exact element={<Trips currentUser={currentUser} />} />

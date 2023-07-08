@@ -1,24 +1,24 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import humps from "humps";
-import { API_ENDPOINT, objectExists, formatDateTime } from "../utils";
-import AddTripModal from "./AddTripModal";
-import ReadTripModal from "./ReadTripModal";
+import { API_ENDPOINT, objectExists } from "../utils";
+import Modal from "./Modal";
+import TripRow from "./TripRow";
+import TripRowHeaders from "./TripRowHeaders";
 
 export default function Trips({ currentUser }) {
-  const [trip, setTrip] = useState({});
+  const [selectedTrip, setSelectedTrip] = useState({});
   const [trips, setTrips] = useState([]);
-  const [addTripModal, setAddTripModal] = useState(false);
-  const [readTripModal, setReadTripModal] = useState(false);
-  const tableHeaders = [
-    "Assignee",
-    "Owner",
-    "Location",
-    "ETA",
-    "ETC",
-    "Status",
-    "Actions",
-  ];
+  const [assignees, setAssignees] = useState([]);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalType, setModalType] = useState("");
+  const [modalTitle, setModalTitle] = useState("");
+
+  const getAssignees = async () => {
+    const url = `${API_ENDPOINT}/users`;
+    const resp = await axios.get(url);
+    const users = resp.data.users;
+    setAssignees(users);
+  };
 
   const handleGetTrips = async () => {
     const url = `${API_ENDPOINT}/users/${currentUser.id}/trips`;
@@ -29,44 +29,14 @@ export default function Trips({ currentUser }) {
     }
   };
 
-  const actionButtonText = (status) => {
-    switch (status) {
-      case "Not Started":
-        return "Check In";
-      case "In Progress":
-      case "Overdue":
-        return "Check Out";
-      default:
-        return "Review";
-    }
-  };
-
-  const handleAction = (trip) => {
-    if (trip.status == "Complete") {
-      setTrip(trip);
-      setReadTripModal(true);
-    } else {
-      updateTripStatus(trip.id);
-      handleGetTrips();
-    }
-  };
-
-  const updateTripStatus = async (id) => {
-    const url = `${API_ENDPOINT}/users/${currentUser.id}/trips/${id}`;
-    const resp = await axios.put(url);
-    const updatedTrip = resp.data.trip;
-    setTrips(
-      trips.map((trip) => {
-        if (trip.id === updatedTrip.id) {
-          return updatedTrip;
-        } else {
-          return trip;
-        }
-      })
-    );
+  const handleAddTrip = () => {
+    setModalTitle("Create New Trip");
+    setModalType("addTrip");
+    setModalOpen(true);
   };
 
   useEffect(() => {
+    getAssignees();
     if (objectExists(currentUser)) {
       handleGetTrips();
     }
@@ -74,43 +44,36 @@ export default function Trips({ currentUser }) {
 
   return (
     <div id="trips">
-      <AddTripModal
-        currentUser={currentUser}
-        open={addTripModal}
-        setAddTripModal={setAddTripModal}
+      <Modal
+        trip={selectedTrip}
         trips={trips}
         setTrips={setTrips}
+        assignees={assignees}
+        getAssignees={getAssignees}
+        currentUser={currentUser}
+        modalOpen={modalOpen}
+        setModalOpen={setModalOpen}
+        modalType={modalType}
+        modalTitle={modalTitle}
       />
-      <ReadTripModal
-        open={readTripModal}
-        trip={trip}
-        setReadTripModal={setReadTripModal}
-      />
-      <button id="addTrip" onClick={() => setAddTripModal(true)}>
+      <button id="addTrip" onClick={() => handleAddTrip()}>
         + Add Trip
       </button>
-      <div className="tripTableHeaders">
-        {tableHeaders.map((header, index) => (
-          <p key={index}>{header}</p>
-        ))}
-      </div>
-
+      <TripRowHeaders />
       {trips.length > 0 &&
         trips.map((trip) => (
-          <div className="tripRow" key={trip.id}>
-            <p>{trip.assignee_name}</p>
-            <p>{trip.owner_name}</p>
-            <p>{trip.location}</p>
-            <p>{formatDateTime(trip.eta)}</p>
-            <p>{formatDateTime(trip.etc)}</p>
-            <p>{trip.status}</p>
-            <div
-              className={`actionButton ${humps.camelize(trip.status)}`}
-              onClick={() => handleAction(trip)}
-            >
-              {actionButtonText(trip.status)}
-            </div>
-          </div>
+          <TripRow
+            key={trip.id}
+            trip={trip}
+            trips={trips}
+            setSelectedTrip={setSelectedTrip}
+            setTrips={setTrips}
+            currentUser={currentUser}
+            handleGetTrips={handleGetTrips}
+            setModalOpen={setModalOpen}
+            setModalType={setModalType}
+            setModalTitle={setModalTitle}
+          />
         ))}
     </div>
   );
